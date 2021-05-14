@@ -100,9 +100,9 @@ export default function ScheduleDetail({ id, schedule }: Props) {
               <Grid item xs={10}>
                 <Typography>{data.startDate}</Typography>
               </Grid>
-              {data.start && (
+              {!data.switchStatus && (
                 <Grid item xs={10}>
-                  <Typography>{data.start.getHours}</Typography>
+                  <Typography>{data.start}時</Typography>
                 </Grid>
               )}
             </Grid>
@@ -119,6 +119,11 @@ export default function ScheduleDetail({ id, schedule }: Props) {
               <Grid item xs={10}>
                 <Typography>{data.endDate}</Typography>
               </Grid>
+              {!data.switchStatus && (
+                <Grid item xs={10}>
+                  <Typography>{data.end}時</Typography>
+                </Grid>
+              )}
             </Grid>
             <Grid
               container
@@ -139,14 +144,51 @@ export default function ScheduleDetail({ id, schedule }: Props) {
               spacing={1}
               alignItems="center"
               justify="center"
-              className="bt-3 text-center"
+              className="pb-3 text-center"
             >
               <Grid item>
                 <CategoryOutlined />
               </Grid>
-              <Grid item xs={10}>
-                <Typography>{data.categoryNum}</Typography>
-              </Grid>
+              {data.categoryNum === 1 && (
+                <Grid item xs={10}>
+                  <Typography>Shopping</Typography>
+                </Grid>
+              )}
+              {data.categoryNum === 2 && (
+                <Grid item xs={10}>
+                  <Typography>BirthDay</Typography>
+                </Grid>
+              )}
+              {data.categoryNum === 3 && (
+                <Grid item xs={10}>
+                  <Typography>Eating Out</Typography>
+                </Grid>
+              )}
+              {data.categoryNum === 4 && (
+                <Grid item xs={10}>
+                  <Typography>Movie</Typography>
+                </Grid>
+              )}
+              {data.categoryNum === 5 && (
+                <Grid item xs={10}>
+                  <Typography>Beauty</Typography>
+                </Grid>
+              )}
+              {data.categoryNum === 6 && (
+                <Grid item xs={10}>
+                  <Typography>Hospital</Typography>
+                </Grid>
+              )}
+              {data.categoryNum === 7 && (
+                <Grid item xs={10}>
+                  <Typography>Gym・Training</Typography>
+                </Grid>
+              )}
+              {data.categoryNum === 8 && (
+                <Grid item xs={10}>
+                  <Typography>Other</Typography>
+                </Grid>
+              )}
             </Grid>
             <Grid
               container

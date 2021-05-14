@@ -14,6 +14,7 @@ import {
   NoteOutlined,
   AccessTime,
   Place,
+  FiberManualRecord,
 } from "@material-ui/icons";
 import {
   MuiPickersUtilsProvider,
@@ -21,9 +22,10 @@ import {
   TimePicker,
 } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useContext } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
+import { CalederContext, CalenderProvider } from "../context/CalenderContext";
 
 export type Props = {
   isDialogOpen: boolean;
@@ -32,16 +34,43 @@ export type Props = {
   mutate: any;
 };
 
+const hours: Array<number> = [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+];
+
 // const url = "http://localhost:8080/";
 
 const AddScheduleDialog: React.FC<Props> = (props) => {
   const { isDialogOpen, dialogClose, newDate, mutate } = props;
+  const { isOpen, isCloseDialog, setSelectDate } = useContext(CalederContext);
 
   const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(dayjs());
   const [endDate, setEndDate] = useState<dayjs.Dayjs | null>(dayjs());
   const [switchState, setSwithcState] = useState(true);
-  const [start, setStart] = useState(new Date());
-  const [end, setEnd] = useState(new Date());
+  const [start, setStart] = useState(String(dayjs().hour()));
+  const [end, setEnd] = useState(String(dayjs().hour()));
   const [event, setEvent] = useState("");
   const [category, setCategory] = useState("1");
   const [place, setPlace] = useState("");
@@ -50,8 +79,8 @@ const AddScheduleDialog: React.FC<Props> = (props) => {
   const handkeSwitch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSwithcState(e.target.checked);
 
-    setStart(new Date());
-    setEnd(new Date());
+    setStart(String(dayjs().hour()));
+    setEnd(String(dayjs().hour()));
   };
 
   useEffect(() => {
@@ -91,14 +120,14 @@ const AddScheduleDialog: React.FC<Props> = (props) => {
     setCategory("1");
     setStartDate(dayjs());
     setEndDate(dayjs());
-    setStart(new Date());
-    setEnd(new Date());
+    setStart(String(dayjs().hour()));
+    setEnd(String(dayjs().hour()));
+    setSelectDate(dayjs());
 
-    dialogClose();
+    isCloseDialog();
   };
 
   const saveData = async () => {
-    console.log("saveData", event, startDate, endDate, category, place, memo);
     await axios
       .post(`${process.env.NEXT_PUBLIC_RESTAPI_URL}/save`, {
         event: event,
@@ -109,6 +138,7 @@ const AddScheduleDialog: React.FC<Props> = (props) => {
         categoryNum: Number(category),
         place: place,
         memo: memo,
+        switchStatus: switchState,
       })
       .then(() => {
         setEvent("");
@@ -117,17 +147,18 @@ const AddScheduleDialog: React.FC<Props> = (props) => {
         setCategory("1");
         setStartDate(dayjs());
         setEndDate(dayjs());
-        setStart(new Date());
-        setEnd(new Date());
+        setStart(String(dayjs().hour()));
+        setEnd(String(dayjs().hour()));
       });
 
-    dialogClose();
+    setSelectDate(dayjs());
+    isCloseDialog();
 
     mutate();
   };
 
   return (
-    <Dialog open={isDialogOpen} onClose={handleClose} maxWidth="xs" fullWidth>
+    <Dialog open={isOpen} onClose={handleClose} maxWidth="xs" fullWidth>
       <DialogContent>
         <TextField
           autoFocus
@@ -163,13 +194,20 @@ const AddScheduleDialog: React.FC<Props> = (props) => {
                   fullWidth
                 />
                 {!switchState && (
-                  <TimePicker
-                    value={end}
-                    onChange={setEnd}
-                    todayLabel="now"
-                    showTodayButton
-                    minutesStep={5}
-                  />
+                  <Select
+                    fullWidth
+                    autoFocus
+                    value={start}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setStart(e.target.value)
+                    }
+                  >
+                    {hours.map((hour) => (
+                      <MenuItem value={String(hour)} key={hour}>
+                        {hour} 時
+                      </MenuItem>
+                    ))}
+                  </Select>
                 )}
               </>
             </MuiPickersUtilsProvider>
@@ -198,13 +236,20 @@ const AddScheduleDialog: React.FC<Props> = (props) => {
                   fullWidth
                 />
                 {!switchState && (
-                  <TimePicker
-                    value={start}
-                    onChange={setStart}
-                    todayLabel="now"
-                    showTodayButton
-                    minutesStep={5}
-                  />
+                  <Select
+                    fullWidth
+                    autoFocus
+                    value={end}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setEnd(e.target.value)
+                    }
+                  >
+                    {hours.map((hour) => (
+                      <MenuItem value={String(hour)} key={hour}>
+                        {hour} 時
+                      </MenuItem>
+                    ))}
+                  </Select>
                 )}
               </>
             </MuiPickersUtilsProvider>
@@ -245,8 +290,54 @@ const AddScheduleDialog: React.FC<Props> = (props) => {
                 setCategory(e.target.value)
               }
             >
-              <MenuItem value="1">仕事</MenuItem>
-              <MenuItem value="2">誕生日</MenuItem>
+              <MenuItem value="1">
+                <span className="text-xs mr-3 text-yellow-200">
+                  <FiberManualRecord />
+                </span>{" "}
+                Shopping
+              </MenuItem>
+              <MenuItem value="2">
+                <span className="text-xs mr-3 text-red-300">
+                  <FiberManualRecord />
+                </span>{" "}
+                Birthday
+              </MenuItem>
+              <MenuItem value="3">
+                <span className="text-xs mr-3 text-yellow-500">
+                  <FiberManualRecord />
+                </span>{" "}
+                Eating Out
+              </MenuItem>
+              <MenuItem value="4">
+                <span className="text-xs mr-3 text-purple-300 ">
+                  <FiberManualRecord />
+                </span>{" "}
+                Movie
+              </MenuItem>
+              <MenuItem value="5">
+                <span className="text-xs mr-3 text-pink-300">
+                  <FiberManualRecord />
+                </span>{" "}
+                Beauty
+              </MenuItem>
+              <MenuItem value="6">
+                <span className="text-xs mr-3 text-green-300">
+                  <FiberManualRecord />
+                </span>{" "}
+                Hospital
+              </MenuItem>
+              <MenuItem value="7">
+                <span className="text-xs mr-3 text-gray-300">
+                  <FiberManualRecord />
+                </span>{" "}
+                Gym・Training
+              </MenuItem>
+              <MenuItem value="8">
+                <span className="text-xs mr-3 text-blue-300">
+                  <FiberManualRecord />
+                </span>{" "}
+                Others
+              </MenuItem>
             </Select>
           </Grid>
         </Grid>

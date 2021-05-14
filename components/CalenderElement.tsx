@@ -41,7 +41,7 @@ const CalenderElement: React.FC<Props> = (props) => {
   const textColor = isCurrentMonth ? "textPrimary" : "textSecondary";
 
   return (
-    <div className="border-r border-b border-solid border-gray-200 h-40 w-36">
+    <div className="border-r border-b border-solid border-gray-200 h-40 w-36 cursor-pointer">
       <Typography
         className="p-1 h-6"
         align="center"
@@ -66,6 +66,7 @@ const CalenderElement: React.FC<Props> = (props) => {
             schedule={e}
             changePage={changePage}
             deleteTask={deleteTask}
+            date={day}
           />
         ))}
       </div>

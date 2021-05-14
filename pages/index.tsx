@@ -6,14 +6,11 @@ import dayjs from "dayjs";
 import "dayjs/locale/ja";
 dayjs.locale("ja");
 import { CalenderProvider } from "../context/CalenderContext";
-import Blog from "./calender_demo";
 
 const Home: React.FC = () => {
   return (
     <CalenderProvider>
-      <Layout title="Home">
-        <Calender />
-      </Layout>
+      <Calender />
     </CalenderProvider>
   );
 };
