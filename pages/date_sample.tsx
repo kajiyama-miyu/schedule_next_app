@@ -5,9 +5,11 @@ import { CalenderProvider, CalederContext } from "../context/CalenderContext";
 import dayjs from "dayjs";
 import DateElement from "../components/DateElement";
 import { setScheduleHours } from "../logic/schedule";
-import { useMemo, useContext, useEffect } from "react";
+import { useMemo, useContext, useEffect, useState } from "react";
 import { Schedule } from "../type/type";
 import ScheduleEventOnEachDay from "../components/ScheduleEventOnEachDay";
+import { getAllSchedule } from "../lib/schedule";
+import { GetStaticProps } from "next";
 
 const hours: Array<number> = [
   6,
@@ -35,37 +37,57 @@ const hours: Array<number> = [
   4,
   5,
 ];
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const apiUrl = `http://localhost:8080/schedule`;
 
-export default function CalenderDate() {
-  const scheduleSample: Array<Schedule> = [
-    {
-      scheduleId: 2,
-      startDate: new Date(),
-      endDate: new Date(),
-      start: "8",
-      end: "10",
-      event: "event",
-      categoryNum: 1,
-      place: "tokyo",
-      memo: "live",
-      switchStatus: false,
-    },
-    {
-      scheduleId: 4,
-      startDate: new Date(),
-      endDate: new Date(),
-      start: "9",
-      end: "14",
-      event: "live",
-      categoryNum: 8,
-      place: "tokyo",
-      memo: "live",
-      switchStatus: false,
-    },
-  ];
+type Props = {
+  schedules: Array<Schedule>;
+};
+
+export default function CalenderDate({ schedules }: Props) {
+  const { select } = useContext(CalederContext);
+  const { data, mutate } = useSWR(apiUrl, fetcher, {
+    initialData: schedules,
+  });
+
+  const [newSchedule, setNewSchedule] = useState<Array<Schedule>>([]);
+  useEffect(() => {
+    mutate();
+    const scheduleOfDate: Array<Schedule> = data?.filter(
+      (d) => d.startDate === select
+    );
+    setNewSchedule(scheduleOfDate);
+  }, []);
+
+  // const scheduleSample: Array<Schedule> = [
+  //   {
+  //     scheduleId: 2,
+  //     startDate: new Date(),
+  //     endDate: new Date(),
+  //     start: "8",
+  //     end: "10",
+  //     event: "event",
+  //     categoryNum: 1,
+  //     place: "tokyo",
+  //     memo: "live",
+  //     switchStatus: false,
+  //   },
+  //   {
+  //     scheduleId: 4,
+  //     startDate: new Date(),
+  //     endDate: new Date(),
+  //     start: "9",
+  //     end: "14",
+  //     event: "live",
+  //     categoryNum: 8,
+  //     place: "tokyo",
+  //     memo: "live",
+  //     switchStatus: false,
+  //   },
+  // ];
 
   const callbackHour = useMemo(() => {
-    const calender = setScheduleHours(hours, scheduleSample);
+    const calender = setScheduleHours(hours, newSchedule);
 
     return calender;
   }, [hours]);
@@ -79,9 +101,9 @@ export default function CalenderDate() {
             <Typography variant="h4" align="center" className="mt-2 ml-1 pb-7">
               {dayjs().month() + 1}月 {dayjs().date()}日
             </Typography>
-            {scheduleSample.map((s) => (
-              <span key={s.scheduleId}>
-                <ScheduleEventOnEachDay schedule={s} />
+            {newSchedule.map((n) => (
+              <span key={n.scheduleId}>
+                <ScheduleEventOnEachDay schedule={n} />
               </span>
             ))}
             <GridList
@@ -102,3 +124,13 @@ export default function CalenderDate() {
     </CalenderProvider>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const schedules = await getAllSchedule();
+
+  return {
+    props: {
+      schedules,
+    },
+  };
+};

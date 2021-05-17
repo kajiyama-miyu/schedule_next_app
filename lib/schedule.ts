@@ -27,16 +27,16 @@ export async function getScheduleData(id: number) {
   return schedule;
 }
 
-export async function getScheduleDataByStartDate(startDate: dayjs.Dayjs) {
-  const res = await axios.get<Array<Schedule>>(
-    `${process.env.NEXT_PUBLIC_RESTAPI_URL}date-schedul/${startDate}`
-  );
+// export async function getScheduleDataByStartDate(startDate: dayjs.Dayjs) {
+//   const res = await axios.get<Array<Schedule>>(
+//     `${process.env.NEXT_PUBLIC_RESTAPI_URL}date-schedule/${startDate}`
+//   );
 
-  const schedules = {
-    schedules: res.data,
-  };
-  return schedules;
-}
+//   const schedules = {
+//     schedules: res.data,
+//   };
+//   return schedules;
+// }
 
 export async function getAllScheduleIds() {
   const res = await axios.get<Array<Schedule>>(
@@ -49,22 +49,6 @@ export async function getAllScheduleIds() {
     return {
       params: {
         id: String(schedule.scheduleId),
-      },
-    };
-  });
-}
-
-export async function getAllScheduleStartId() {
-  const res = await axios.get<Array<Schedule>>(
-    `${process.env.NEXT_PUBLIC_RESTAPI_URL}schedule`
-  );
-
-  const schedules = await res.data;
-
-  return schedules.map((schedule) => {
-    return {
-      params: {
-        startDate: schedule.startDate,
       },
     };
   });
